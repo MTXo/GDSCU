@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GeometryDashSyzyfCounterULTIMATE.MainPage" BackgroundColor="#14102C">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="25" BackgroundColor="#11092C">
+
+            <Label
+                Text="GEOMETRY DASH SYZYF COUNTER ULTIMATE"
+                Style="{StaticResource Headline}"
+                SemanticProperties.HeadingLevel="Level1" TextColor="#FFFFFF" />
+            <Picker
+                x:Name="LevelPicker"
+                Title="Wybierz poziom"
+                TextColor="White"
+                BackgroundColor="#222"/>
+            <Label
+                x:Name="Levels"
+                Text=""
+                SemanticProperties.HeadingLevel="Level2"
+                HorizontalOptions="Center"
+                TextColor="#FFFFFF" />
+            <Editor
+                x:Name="LevelInput"
+                Placeholder="Enter level name"
+                TextColor="#FFFFFF"
+                />
+            <Button
+                x:Name="CounterBtn"
+                Text="Submit"
+                Clicked="OnCounterClicked"
+                HorizontalOptions="Fill" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

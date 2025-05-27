@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp3", "ConsoleApp3\ConsoleApp3.csproj", "{62DB4673-3C40-42D5-A159-16C7224BD6D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeometryDashSyzyfCounterULTIMATE", "GeometryDashSyzyfCounterULTIMATE\GeometryDashSyzyfCounterULTIMATE.csproj", "{FC384DCA-D6EF-48E5-9AF5-5F48556B0089}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{62DB4673-3C40-42D5-A159-16C7224BD6D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62DB4673-3C40-42D5-A159-16C7224BD6D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62DB4673-3C40-42D5-A159-16C7224BD6D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62DB4673-3C40-42D5-A159-16C7224BD6D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC384DCA-D6EF-48E5-9AF5-5F48556B0089}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC384DCA-D6EF-48E5-9AF5-5F48556B0089}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC384DCA-D6EF-48E5-9AF5-5F48556B0089}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC384DCA-D6EF-48E5-9AF5-5F48556B0089}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {24968108-F9F5-4944-A74A-A14040C64882}
+	EndGlobalSection
+EndGlobal
