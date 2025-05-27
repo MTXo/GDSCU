@@ -1,39 +1,84 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="GeometryDashSyzyfCounterULTIMATE.MainPage" BackgroundColor="#14102C">
+             x:Class="GeometryDashSyzyfCounterULTIMATE.MainPage"
+             BackgroundColor="#14102C"
+             Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False">
 
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25" BackgroundColor="#11092C">
+    <Grid>
+        <!-- GŁÓWNA TREŚĆ -->
+        <ScrollView>
+            <VerticalStackLayout Padding="30,0" Spacing="25" BackgroundColor="#11092C">
+                <BoxView HeightRequest="10" Opacity="0"/>
+                <Label
+                    Text="Geometry Dash Syzyf Counter ULTIMATE"
+                    HorizontalOptions="Center"
+                    FontSize="42"
+                    SemanticProperties.HeadingLevel="Level1" />
 
-            <Label
-                Text="GEOMETRY DASH SYZYF COUNTER ULTIMATE"
-                Style="{StaticResource Headline}"
-                SemanticProperties.HeadingLevel="Level1" TextColor="#FFFFFF" />
-            <Picker
-                x:Name="LevelPicker"
-                Title="Wybierz poziom"
-                TextColor="White"
-                BackgroundColor="#222"/>
-            <Label
-                x:Name="Levels"
-                Text=""
-                SemanticProperties.HeadingLevel="Level2"
-                HorizontalOptions="Center"
-                TextColor="#FFFFFF" />
-            <Editor
-                x:Name="LevelInput"
-                Placeholder="Enter level name"
-                TextColor="#FFFFFF"
-                />
-            <Button
-                x:Name="CounterBtn"
-                Text="Submit"
-                Clicked="OnCounterClicked"
-                HorizontalOptions="Fill" />
-        </VerticalStackLayout>
-    </ScrollView>
+                <Picker x:Name="LevelPicker" Title="Wybierz poziom"
+                        TextColor="White" BackgroundColor="#222"
+                        SelectedIndexChanged="OnLevelSelect" />
 
+                <Label x:Name="Levels" Text=""
+                       SemanticProperties.HeadingLevel="Level2"
+                       HorizontalOptions="Center" WidthRequest="320"
+                       TextColor="#FFFFFF" />
+
+                <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Editor x:Name="LevelInput" Placeholder="Enter level name"
+                            WidthRequest="320" TextColor="#FFFFFF" />
+                    <Button x:Name="FindLevels" Text="Find Levels"
+                            Clicked="OnClick" WidthRequest="320" />
+                </HorizontalStackLayout>
+
+
+                <BoxView HeightRequest="20" Opacity="0"/>
+
+                <HorizontalStackLayout Spacing="10" HorizontalOptions="Center"
+                                       IsVisible="False" x:Name="CalculateSection">
+                    <Editor x:Name="PercentageStart" Placeholder="Start"
+                            WidthRequest="155" TextColor="#FFFFFF"/>
+                    <Editor x:Name="PercentageEnd" Placeholder="End"
+                            WidthRequest="155" TextColor="#FFFFFF"/>
+                </HorizontalStackLayout>
+
+                <Button x:Name="CalculateButton" IsVisible="False"
+                        Text="Calculate" Clicked="CalculateAttempts"
+                        WidthRequest="320"/>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- PRZYCISK OPCJE -->
+        <Button
+            x:Name="OptionsButton"
+            Clicked="ToggleOptions"
+            ImageSource="settings.png"
+            WidthRequest="50"
+            HeightRequest="50"
+            BackgroundColor="#4A90E2"
+            TextColor="White"
+            CornerRadius="10"
+            HorizontalOptions="End"
+            VerticalOptions="Start"
+            Margin="10"/>
+
+        <!-- MENU OPCJI -->
+        <Border
+            x:Name="OptionsMenu"
+            IsVisible="False"
+            Opacity="0"
+            Padding="10"
+            BackgroundColor="#333"
+            WidthRequest="250"
+            HorizontalOptions="End"
+            VerticalOptions="Start"
+            Margin="10,60,10,0">
+            <VerticalStackLayout Spacing="10">
+                <Button x:Name="UnratedLevelsOption" Text="Include Unrated Levels" Clicked="ShowUnratedLevels"/>
+                <Button Text="Own Text" Clicked="ShowOwnText"/>
+                <Button Text="Info" Clicked="ShowInfo"/>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
 </ContentPage>

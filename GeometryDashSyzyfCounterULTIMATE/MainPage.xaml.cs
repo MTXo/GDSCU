@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
 using System.Xml;
 
 namespace GeometryDashSyzyfCounterULTIMATE
@@ -15,12 +16,10 @@ namespace GeometryDashSyzyfCounterULTIMATE
         public string? cache_username { get; set; }
         public int cache_stars { get; set; }
     }
-
     public class ApiResponse
     {
         public List<Hit>? hits { get; set; }
     }
-
     public class LevelInfo
     {
         public long OnlineId { get; set; }
@@ -30,12 +29,32 @@ namespace GeometryDashSyzyfCounterULTIMATE
 
         public override string ToString()
         {
-            return $"{OnlineId} : (\"{Name}\" By: {Author})";
+            return $"{OnlineId} : (\"{Name}\" By: {Author} Starrate: {Difficulty})";
         }
     }
-
+    public class RootObject
+    {
+        public Dictionary<int, int>? Deaths { get; set; }
+    }
     public partial class MainPage : ContentPage
     {
+        public bool unratedLevels = false;
+        private async void ToggleOptions(object sender, EventArgs e)
+        {
+            if (OptionsMenu.IsVisible)
+            {
+                await OptionsMenu.FadeTo(0, 200);
+                OptionsMenu.IsVisible = false;
+            }
+            else
+            {
+                OptionsMenu.IsVisible = true;
+                await OptionsMenu.FadeTo(1, 200);
+            }
+        }
+
+        int[] attempts = new int[101];
+
         public MainPage()
         {
             InitializeComponent();
@@ -59,11 +78,20 @@ namespace GeometryDashSyzyfCounterULTIMATE
 
                 if (data?.hits != null)
                 {
-                    var filteredHits = data.hits
-                        .Where(hit => hit.cache_stars > 0)
-                        .Where(hit => string.Equals(hit.cache_level_name?.Trim(), levelName?.Trim(), StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-
+                    var filteredHits = data.hits;
+                    if (unratedLevels == false)
+                    {
+                        filteredHits = data.hits
+                            .Where(hit => hit.cache_stars > 0)
+                            .Where(hit => string.Equals(hit.cache_level_name?.Trim(), levelName?.Trim(), StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                    }
+                    else
+                    {
+                        filteredHits = data.hits
+                            .Where(hit => string.Equals(hit.cache_level_name?.Trim(), levelName?.Trim(), StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                    }
                     foreach (var hit in filteredHits)
                     {
                         levels.Add(new LevelInfo
@@ -82,8 +110,7 @@ namespace GeometryDashSyzyfCounterULTIMATE
 
             return levels;
         }
-
-        private async void OnCounterClicked(object sender, EventArgs e)
+        private async void OnClick(object sender, EventArgs e)
         {
             LevelPicker.SelectedIndex = 0;
             if (string.IsNullOrWhiteSpace(LevelInput.Text))
@@ -102,10 +129,153 @@ namespace GeometryDashSyzyfCounterULTIMATE
             }
             else
             {
-                LevelPicker.SelectedItem = levels[0];
+                LevelPicker.SelectedItem = null;
                 LevelPicker.ItemsSource = levels;
                 Levels.Text = $"Znaleziono {levels.Count} poziom(ów)";
             }
+        }
+        private void OnLevelSelect(object sender, EventArgs e)
+        {
+            CalculateSection.IsVisible=true;
+            CalculateButton.IsVisible = true;
+
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "..",
+                "Local",
+                "GeometryDash",
+                "geode",
+                "mods",
+                "elohmrow.death_tracker",
+                "levels");
+            if (LevelPicker.ItemsSource != null)
+            {
+                if (LevelPicker.SelectedIndex == -1)
+                    return;
+
+                var selectedItem = LevelPicker.SelectedItem;
+                if (selectedItem is LevelInfo level)
+                {
+                    string levelInfo = selectedItem.ToString() ?? " ";
+                    int index = levelInfo.IndexOf(' ');
+                    string levelId = index >= 0 ? levelInfo.Substring(0, index) : levelInfo;
+                    string json = string.Empty;
+
+                    string deathTrackerLevelPath = $"{path}\\{levelId}.json";
+                    try
+                    {
+                        json = File.ReadAllText(deathTrackerLevelPath);
+                    }
+                    catch
+                    {
+                        json = string.Empty;
+                    }
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    if(json == null || !File.Exists(deathTrackerLevelPath))
+                    {
+                        Levels.Text = "Brak danych o śmierciach dla tego poziomu.";
+                        return;
+                    }
+
+                    RootObject? data = JsonSerializer.Deserialize<RootObject>(json, options);
+
+                    Levels.Text = "";
+
+                    if (data == null || data.Deaths == null || data.Deaths.Count == 0)
+                    {
+                        Levels.Text = "Brak danych o śmierciach dla tego poziomu.";
+                        return;
+                    }
+                    
+                    for (int i = 0; i < 101; i++)
+                    {
+                        attempts[i] = 0;
+                    }
+                    foreach (var pair in data.Deaths)
+                    {
+                        var percentage = pair.Key;
+                        var attemptCount = pair.Value;
+
+                        attempts[percentage] = pair.Value;
+                    }
+                }
+            }
+        }
+        private void CalculateAttempts(object sender, EventArgs e)
+        {
+            int sum = 0;
+            bool isEndGiven = false;
+            if (int.TryParse(PercentageEnd.Text, out int end))
+            {
+                if (end <= 100)
+                {
+                    isEndGiven = true;
+                    end++;
+                }
+                else
+                {
+                    end = 100;
+                    isEndGiven = false;
+                }
+            }
+            else
+            {
+                end = 100;
+                isEndGiven = false;
+            }
+
+            int start = 0;
+            if (int.TryParse(PercentageStart.Text, out start))
+            {
+                for (int i = start; i < end; i++)
+                {
+                    if (attempts[i] != 0)
+                    {
+                        sum += attempts[i];
+                    }
+                }
+                if (isEndGiven)
+                    Levels.Text = $"Attempt count from {start}% to {end - 1}% is {sum}.";
+                else
+                    Levels.Text = $"Attempt count from {start}% is {sum}.";
+            }
+
+        }
+
+        private async void ShowUnratedLevels(object sender, EventArgs e)
+        {
+            if (unratedLevels)
+            {
+                await UnratedLevelsOption.FadeTo(0, 200);
+                UnratedLevelsOption.Text = "Include Unrated Levels";
+                await UnratedLevelsOption.FadeTo(1, 200);
+                unratedLevels = false;
+            }
+            else if (unratedLevels == false)
+            {
+                await UnratedLevelsOption.FadeTo(0, 200);
+                UnratedLevelsOption.Text = "Don't Include Unrated Levels";
+                await UnratedLevelsOption.FadeTo(1, 200);
+                unratedLevels = true;
+            }
+        }
+
+        private void ShowOwnText(object sender, EventArgs e)
+        {
+
+        }
+        private async void UnfocusedOptionsMenu(object sender, EventArgs e)
+        {
+            await OptionsMenu.FadeTo(0, 200);
+            OptionsMenu.IsVisible = false;
+        }
+
+        private void ShowInfo(object sender, EventArgs e)
+        {
+           
         }
     }
 
