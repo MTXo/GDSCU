@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Xml;
 
 namespace GeometryDashSyzyfCounterULTIMATE
 {
@@ -39,6 +32,9 @@ namespace GeometryDashSyzyfCounterULTIMATE
     public partial class MainPage : ContentPage
     {
         public bool unratedLevels = false;
+        public bool isTextMode = true;
+        int[] attempts = new int[101];
+
         private async void ToggleOptions(object sender, EventArgs e)
         {
             if (OptionsMenu.IsVisible)
@@ -52,14 +48,10 @@ namespace GeometryDashSyzyfCounterULTIMATE
                 await OptionsMenu.FadeTo(1, 200);
             }
         }
-
-        int[] attempts = new int[101];
-
         public MainPage()
         {
             InitializeComponent();
         }
-
         public async Task<List<LevelInfo>> GetLevelInfo(string levelName)
         {
             List<LevelInfo> levels = new List<LevelInfo>();
@@ -204,8 +196,47 @@ namespace GeometryDashSyzyfCounterULTIMATE
                 }
             }
         }
+        private void FillTab()
+        {
+            int percent;
+            string[] lines = AttemptsInput.Text.Split("\r");
+
+            for (int i = 0; i < 100; i++)
+            {
+                attempts[i] = 0;
+            }
+
+            foreach (string line in lines)
+            {
+                if (line == " " || line == "")
+                { continue; }
+                for (int i = 0; i < line.Length; i++)
+                {
+                    if (line.Contains("From 0:"))
+                    {
+                        continue;
+                    }
+                    if ((string.Compare(line[i].ToString(), "%")) == 0)
+                    {
+                        percent = int.Parse(line.Substring(0, i));
+                        for (int j = 0; j < line.Length; j++)
+                        {
+                            if ((string.Compare(line[j].ToString(), "x")) == 0)
+                            {
+                                attempts[percent] = int.Parse(line.Substring(j + 1));
+                            }
+                        }
+                    }
+                }
+            }
+        }
         private void CalculateAttempts(object sender, EventArgs e)
         {
+            Console.WriteLine("klik");
+            if (isTextMode)
+            {
+                FillTab();
+            }
             int sum = 0;
             bool isEndGiven = false;
             if (int.TryParse(PercentageEnd.Text, out int end))
@@ -242,9 +273,12 @@ namespace GeometryDashSyzyfCounterULTIMATE
                 else
                     Levels.Text = $"Attempt count from {start}% is {sum}.";
             }
+            for (int i = start; i < end; ++i)
+            {
+                attempts[i] = 0;
+            }
 
         }
-
         private async void ShowUnratedLevels(object sender, EventArgs e)
         {
             if (unratedLevels)
@@ -262,8 +296,43 @@ namespace GeometryDashSyzyfCounterULTIMATE
                 unratedLevels = true;
             }
         }
-
-        private void ShowOwnText(object sender, EventArgs e)
+        private async void LevelPickerMode(object sender, EventArgs e)
+        {
+            if (isTextMode)
+            {
+                await Task.WhenAll(
+                    ChangeMode.FadeTo(0, 200),
+                    TextMode.FadeTo(0, 200)
+                );
+                TextMode.IsVisible = false;
+                ChangeMode.Text = "Text Mode";
+                PickerMode.IsVisible = true;
+                UnratedLevelsOption.IsVisible = true;
+                await Task.WhenAll(
+                    ChangeMode.FadeTo(1, 200),
+                    PickerMode.FadeTo(1, 200)
+                );
+                isTextMode = false;
+                
+            }
+            else if (isTextMode == false)
+            {
+                await Task.WhenAll(
+                    ChangeMode.FadeTo(0, 200),
+                    PickerMode.FadeTo(0, 200)
+                );
+                PickerMode.IsVisible = false;
+                UnratedLevelsOption.IsVisible = false;
+                ChangeMode.Text = "Picker Mode";
+                TextMode.IsVisible = true;
+                await Task.WhenAll(
+                    ChangeMode.FadeTo(1, 200),
+                    TextMode.FadeTo(1, 200)
+                );
+                isTextMode = true;
+            }
+        }
+        private void ShowInfo(object sender, EventArgs e)
         {
 
         }
@@ -271,11 +340,6 @@ namespace GeometryDashSyzyfCounterULTIMATE
         {
             await OptionsMenu.FadeTo(0, 200);
             OptionsMenu.IsVisible = false;
-        }
-
-        private void ShowInfo(object sender, EventArgs e)
-        {
-           
         }
     }
 
