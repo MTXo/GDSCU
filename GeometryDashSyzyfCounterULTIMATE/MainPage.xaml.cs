@@ -232,8 +232,7 @@ namespace GeometryDashSyzyfCounterULTIMATE
         }
         private void CalculateAttempts(object sender, EventArgs e)
         {
-            Console.WriteLine("klik");
-            if (isTextMode)
+            if (isTextMode && AttemptsInput.Text is not null)
             {
                 FillTab();
             }
